@@ -5,6 +5,8 @@ import Login from "./pages/auth/Login";
 import Registration from "./pages/auth/Registration";
 import Homepage from "./pages/Homepage";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import AdminPanel from "./pages/admin/AdminPanel";
+import ViewUsers from "./pages/admin/ViewUsers";
 
 function App() {
   return (
@@ -16,6 +18,9 @@ function App() {
         <Route path="/register" element={<Registration />} />
         <Route path="/homepage" element={<Homepage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/admin" element={<AdminPanel />}>
+          <Route path="users" element={<ViewUsers />} />
+        </Route>
       </Routes>
     </Router>
   );

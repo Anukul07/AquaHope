@@ -18,9 +18,14 @@ export default function Login() {
         email,
         password,
       });
+      const user = res.data.user;
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/homepage");
+      localStorage.setItem("user", JSON.stringify(user));
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/homepage");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
