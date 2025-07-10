@@ -40,7 +40,7 @@ export default function Landing() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/campaigns/");
+        const res = await axios.get("http://192.168.1.75:8000/api/campaigns/");
         setCampaigns(res.data);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
@@ -49,12 +49,6 @@ export default function Landing() {
 
     fetchCampaigns();
   }, []);
-
-  useEffect(() => {
-    if (expandedCard && descriptionRef.current) {
-      descriptionRef.current.innerHTML = expandedCard.description;
-    }
-  }, [expandedCard]);
 
   return (
     <>
@@ -120,7 +114,7 @@ export default function Landing() {
               <h3 className="text-3xl font-bold text-[#0077b6] mb-4">
                 {expandedCard.title}
               </h3>
-              <p className="text-base mb-4" ref={descriptionRef}></p>
+              <p className="text-base mb-4">{expandedCard.description}</p>
               <p className="text-sm text-gray-600 mb-4">
                 <strong>Location:</strong> {expandedCard.location}
               </p>

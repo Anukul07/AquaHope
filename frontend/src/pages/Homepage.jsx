@@ -9,7 +9,7 @@ export default function Homepage() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/campaigns/");
+        const res = await axios.get("http://192.168.1.75:8000/api/campaigns/");
         setCampaigns(res.data);
       } catch (err) {
         console.error("Failed to fetch campaigns", err);

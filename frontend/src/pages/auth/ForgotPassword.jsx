@@ -21,7 +21,7 @@ export default function ForgotPassword() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/validateEmail",
+        "http://192.168.1.75:8000/api/auth/validateEmail",
         { email }
       );
       setSuccess(res.data.message);
@@ -38,7 +38,7 @@ export default function ForgotPassword() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/validateOTP",
+        "http://192.168.1.75:8000/api/auth/validateOTP",
         { email, otp }
       );
       setSuccess(res.data.message);
@@ -55,7 +55,7 @@ export default function ForgotPassword() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/resetPassword",
+        "http://192.168.1.75:8000/api/auth/resetPassword",
         { email, otp, newPassword }
       );
       setSuccess(res.data.message);
