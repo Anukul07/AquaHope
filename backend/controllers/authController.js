@@ -2,24 +2,58 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
+const sanitizeHtml = require("sanitize-html");
 
 exports.register = async (req, res) => {
   try {
-    const { fullName, email, password, phone } = req.body;
+    let { fullName, email, password, phone } = req.body;
+
+    fullName = sanitizeHtml(fullName, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    email = sanitizeHtml(email, { allowedTags: [], allowedAttributes: {} });
+    phone = sanitizeHtml(phone, { allowedTags: [], allowedAttributes: {} });
+
+    const isPasswordStrong = (pwd) => {
+      const lengthCheck = pwd.length >= 8;
+      const numberCheck = /\d/.test(pwd);
+      const symbolCheck = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+      return lengthCheck && numberCheck && symbolCheck;
+    };
+
+    if (!isPasswordStrong(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long and include a number and a symbol.",
+      });
+    }
 
     const existing = await User.findOne({ email });
-    if (existing)
+    if (existing) {
       return res.status(400).json({ message: "Email already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
     const newUser = await User.create({
       fullName,
       email,
       password: hashedPassword,
       phone,
+      otp,
+      otpExpires,
+      isEmailVerified: false,
     });
 
-    res.status(201).json({ message: "User registered successfully" });
+    await sendEmail(email, "Verify your AquaHope email", `Your OTP is: ${otp}`);
+
+    res.status(201).json({
+      message:
+        "Account created. Please verify your email soon using the OTP sent.",
+    });
   } catch (err) {
     res
       .status(500)
@@ -70,13 +104,31 @@ exports.validateEmail = async (req, res) => {
   res.json({ message: "OTP sent successfully" });
 };
 
-exports.validateOTP = async (req, res) => {
+exports.verifyEmailOTP = async (req, res) => {
   const { email, otp } = req.body;
   const user = await User.findOne({ email });
 
   if (!user || !user.otp || user.otp !== otp || new Date() > user.otpExpires) {
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
+
+  user.otp = null;
+  user.otpExpires = null;
+  user.isEmailVerified = true;
+  await user.save();
+
+  res.json({ message: "Email verified successfully" });
+};
+
+exports.validateResetOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || !user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+  user.otp = null;
+  user.otpExpires = null;
 
   res.json({ message: "OTP verified successfully" });
 };

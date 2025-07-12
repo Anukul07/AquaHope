@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   otp: { type: String },
   otpExpires: { type: Date },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
