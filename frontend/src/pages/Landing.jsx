@@ -1,19 +1,22 @@
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
-import hero1 from "../assets/dashboard/hero-1.jpg";
-import hero2 from "../assets/dashboard/hero-2.jpg";
-import hero3 from "../assets/dashboard/hero-3.jpg";
+import hero1 from "../assets/landing/hero-1.jpg";
+import hero2 from "../assets/landing/hero-2.jpg";
+import hero3 from "../assets/landing/hero-3.jpg";
 import { FaArrowDown, FaTimes } from "react-icons/fa";
-import loginStep from "../assets/dashboard/login-step.png";
-import browseStep from "../assets/dashboard/browse-step.png";
-import donateStep from "../assets/dashboard/donate-step.png";
-import journeyStep from "../assets/dashboard/journey-step.png";
+import loginStep from "../assets/landing/login-step.png";
+import browseStep from "../assets/landing/browse-step.png";
+import donateStep from "../assets/landing/donate-step.png";
+import journeyStep from "../assets/landing/journey-step.png";
 
-export default function Dashboard() {
+export default function Landing() {
   const campaignSectionRef = useRef(null);
   const donationStepsRef = useRef(null);
+  const [campaigns, setCampaigns] = useState([]);
+  const descriptionRef = useRef();
 
   const scrollToCampaigns = () => {
     campaignSectionRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,53 +37,24 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const campaigns = [
-    {
-      id: 1,
-      title: "Clean Water Project 1",
-      shortDesc: "Help us build a sustainable clean water source.",
-      longDesc:
-        "We are working to build a solar-powered water filtration system in rural Kenya. This project will serve over 500 families with clean water.",
-      received: 3400,
-      target: 5000,
-    },
-    {
-      id: 2,
-      title: "Clean Water Project 2",
-      shortDesc: "Provide easy access to safe drinking water.",
-      longDesc:
-        "This project involves drilling a deep borehole and installing a hand pump in a remote Tanzanian village.",
-      received: 2700,
-      target: 6000,
-    },
-    {
-      id: 3,
-      title: "Clean Water Project 3",
-      shortDesc: "Transform lives through clean water supply.",
-      longDesc:
-        "We're building a gravity-fed water supply system to connect a stream to several communities in Uganda.",
-      received: 1800,
-      target: 4500,
-    },
-    {
-      id: 4,
-      title: "Clean Water Project 3",
-      shortDesc: "Transform lives through clean water supply.",
-      longDesc:
-        "We're building a gravity-fed water supply system to connect a stream to several communities in Uganda.",
-      received: 1800,
-      target: 4500,
-    },
-    {
-      id: 5,
-      title: "Clean Water Project 3",
-      shortDesc: "Transform lives through clean water supply.",
-      longDesc:
-        "We're building a gravity-fed water supply system to connect a stream to several communities in Uganda.",
-      received: 1800,
-      target: 4500,
-    },
-  ];
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/campaigns/");
+        setCampaigns(res.data);
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+      }
+    };
+
+    fetchCampaigns();
+  }, []);
+
+  useEffect(() => {
+    if (expandedCard && descriptionRef.current) {
+      descriptionRef.current.innerHTML = expandedCard.description;
+    }
+  }, [expandedCard]);
 
   return (
     <>
@@ -146,22 +120,25 @@ export default function Dashboard() {
               <h3 className="text-3xl font-bold text-[#0077b6] mb-4">
                 {expandedCard.title}
               </h3>
-              <p className="text-base mb-4">{expandedCard.longDesc}</p>
+              <p className="text-base mb-4" ref={descriptionRef}></p>
+              <p className="text-sm text-gray-600 mb-4">
+                <strong>Location:</strong> {expandedCard.location}
+              </p>
               <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
                 <div
                   className="bg-[#0077b6] h-4 rounded-full"
                   style={{
-                    width: `${
-                      (expandedCard.received / expandedCard.target) * 100
-                    }%`,
+                    width: `${expandedCard.progress || 0}%`,
                   }}
                 ></div>
               </div>
               <p className="text-md mb-2 font-medium">
-                💧 Raised: ${expandedCard.received} / ${expandedCard.target}
+                💧 Raised: ${expandedCard.raisedAmount} / $
+                {expandedCard.goalAmount}
               </p>
               <p className="text-sm text-gray-600">
-                Project completion expected by Dec 2025.
+                {expandedCard.daysLeft} days remaining | Donors:{" "}
+                {expandedCard.donorCount}
               </p>
             </div>
           )}
@@ -170,14 +147,18 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-6xl">
             {campaigns.map((card) => (
               <div
-                key={card.id}
+                key={card._id}
                 className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition animate-fade-in-up"
               >
-                <div className="h-48 bg-[#eaeaea] rounded mb-4"></div>
+                <img
+                  src={`/campaigns/${card.image}`}
+                  alt={card.title}
+                  className="h-48 w-full object-cover rounded mb-4"
+                />
                 <h3 className="text-xl font-semibold text-[#0077b6] mb-2">
                   {card.title}
                 </h3>
-                <p className="text-sm mb-4">{card.shortDesc}</p>
+                <p className="text-sm mb-4">{card.subtitle}</p>
                 <button
                   className="text-[#0077b6] font-medium hover:underline"
                   onClick={() => setExpandedCard(card)}
