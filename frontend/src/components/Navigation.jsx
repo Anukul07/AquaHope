@@ -86,7 +86,7 @@ export default function Navigation() {
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
-              className="bg-[#ff6b6b] hover:bg-[#e63946] text-white px-4 py-2 rounded"
+              className="bg-[#0077b6] hover:bg-[#005f87] text-white px-8 py-2 rounded-full transition-all duration-200"
             >
               Logout
             </button>
@@ -148,15 +148,19 @@ export default function Navigation() {
                 >
                   Profile
                 </Link>
-                <button
+                <span
                   onClick={() => {
                     handleLogout();
                     setDrawerOpen(false);
                   }}
-                  className="bg-[#ff6b6b] hover:bg-[#e63946] text-white px-4 py-2 rounded mt-2"
+                  className={`cursor-pointer hover:text-[#0077b6] transition-colors duration-200 ${
+                    location.pathname === "/logout"
+                      ? "text-[#0077b6] font-semibold"
+                      : ""
+                  }`}
                 >
                   Logout
-                </button>
+                </span>
               </>
             ) : (
               <>
