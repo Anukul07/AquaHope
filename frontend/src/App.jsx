@@ -4,6 +4,7 @@ import About from "./pages/About";
 import Login from "./pages/auth/Login";
 import Registration from "./pages/auth/Registration";
 import Homepage from "./pages/Homepage";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/homepage" element={<Homepage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );

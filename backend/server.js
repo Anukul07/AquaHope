@@ -13,6 +13,8 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 
+app.use("/api/campaigns", require("./routes/campaignRoutes"));
+
 // Default route
 app.get("/", (req, res) => {
   res.send("Donation API Running ✅");

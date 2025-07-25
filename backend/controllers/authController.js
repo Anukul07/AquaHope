@@ -1,8 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendEmail");
 
-// Register User
 exports.register = async (req, res) => {
   try {
     const { fullName, email, password, phone } = req.body;
@@ -27,7 +27,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login User
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -52,4 +51,48 @@ exports.login = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Login failed", error: err.message });
   }
+};
+
+exports.validateEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User does not exist" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  user.otp = otp;
+  user.otpExpires = otpExpires;
+  await user.save();
+
+  await sendEmail(email, "Your AquaHope OTP", `Your OTP: ${otp}`);
+
+  res.json({ message: "OTP sent successfully" });
+};
+
+exports.validateOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || !user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  res.json({ message: "OTP verified successfully" });
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || user.otp !== otp || new Date() > user.otpExpires) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.otp = null;
+  user.otpExpires = null;
+  await user.save();
+
+  res.json({ message: "Password reset successfully" });
 };
