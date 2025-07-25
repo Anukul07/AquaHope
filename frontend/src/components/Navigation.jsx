@@ -84,12 +84,12 @@ export default function Navigation() {
         {/* Right: Login/Logout Button (desktop only) */}
         <div className="hidden md:flex w-1/3 justify-end items-center">
           {isLoggedIn ? (
-            <button
+            <span
               onClick={handleLogout}
-              className="bg-[#0077b6] hover:bg-[#005f87] text-white px-8 py-2 rounded-full transition-all duration-200"
+              className="cursor-pointer text-[#1e1e1e] hover:text-red-500 transition-colors duration-200"
             >
               Logout
-            </button>
+            </span>
           ) : (
             <Link
               to="/login"
@@ -153,11 +153,7 @@ export default function Navigation() {
                     handleLogout();
                     setDrawerOpen(false);
                   }}
-                  className={`cursor-pointer hover:text-[#0077b6] transition-colors duration-200 ${
-                    location.pathname === "/logout"
-                      ? "text-[#0077b6] font-semibold"
-                      : ""
-                  }`}
+                  className="cursor-pointer text-[#1e1e1e] hover:text-red-500 transition-colors duration-200"
                 >
                   Logout
                 </span>
