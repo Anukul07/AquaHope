@@ -1,4 +1,5 @@
 const Campaign = require("../models/Campaign");
+const { escape } = require("validator");
 
 exports.addCampaign = async (req, res) => {
   try {
@@ -28,12 +29,12 @@ exports.addCampaign = async (req, res) => {
     const image = req.file ? req.file.filename : null;
 
     const newCampaign = await Campaign.create({
-      title,
-      subtitle,
-      description,
+      title: escape(title),
+      subtitle: escape(subtitle),
+      description: escape(description),
       image,
       goalAmount,
-      location,
+      location: escape(location),
       startDate,
       endDate,
     });
