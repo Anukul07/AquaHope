@@ -22,7 +22,7 @@ export default function Registration() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://192.168.1.75/api/auth/register", form);
+      await axios.post("http://192.168.1.75:8000/api/auth/register", form);
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
