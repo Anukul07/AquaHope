@@ -11,6 +11,7 @@ import Donation from "./pages/Donation";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Profile from "./pages/Profile";
+import ViewCampaigns from "./pages/admin/ViewCampaigns";
 
 function App() {
   const stripePromise = loadStripe(
@@ -29,6 +30,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPanel />}>
           <Route path="users" element={<ViewUsers />} />
+        </Route>
+        <Route path="/admin" element={<AdminPanel />}>
+          <Route path="campaigns" element={<ViewCampaigns />} />
         </Route>
         <Route
           path="/donate/:id"

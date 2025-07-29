@@ -34,7 +34,7 @@ export default function Profile() {
     try {
       const localUser = JSON.parse(localStorage.getItem("user"));
       const res = await axios.get(
-        `http://localhost:8000/api/profile/${userId}`
+        `http://192.168.1.75:8000/api/profile/${userId}`
       );
       setProfile({
         ...res.data,
@@ -75,7 +75,7 @@ export default function Profile() {
         formData.append("photo", selectedImage);
       }
 
-      await axios.post("http://localhost:8000/api/profile/update", formData);
+      await axios.post("http://192.168.1.75:8000/api/profile/update", formData);
       setUpdateMsg("Profile updated successfully.");
       fetchProfile(user.id);
     } catch {
@@ -100,7 +100,7 @@ export default function Profile() {
     setPasswordError("");
 
     try {
-      await axios.post("http://localhost:8000/api/auth/validate-password", {
+      await axios.post("http://192.168.1.75:8000/api/auth/validate-password", {
         userId: user.id,
         oldPassword,
         newPassword,
@@ -114,12 +114,15 @@ export default function Profile() {
 
   const handleVerifyOTP = async () => {
     try {
-      await axios.post("http://localhost:8000/api/auth/verify-security-otp", {
-        userId: user.id,
-        otp,
-        newPassword,
-        email,
-      });
+      await axios.post(
+        "http://192.168.1.75:8000/api/auth/verify-security-otp",
+        {
+          userId: user.id,
+          otp,
+          newPassword,
+          email,
+        }
+      );
       setSecurityMsg("Security information updated successfully.");
       setOtpStage(false);
     } catch (err) {

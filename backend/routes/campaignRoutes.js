@@ -4,14 +4,16 @@ const upload = require("../middleware/uploadCampaignImage");
 const {
   addCampaign,
   getAllCampaigns,
+  updateCampaign,
+  deleteCampaign,
 } = require("../controllers/campaignController");
 
-// @route   POST /api/campaigns/add
-// @desc    Add new campaign
 router.post("/add", upload.single("image"), addCampaign);
 
-// @route   GET /api/campaigns
-// @desc    Get all campaigns
 router.get("/", getAllCampaigns);
+
+router.post("/update/:id", upload.single("image"), updateCampaign);
+
+router.delete("/:id", deleteCampaign);
 
 module.exports = router;
