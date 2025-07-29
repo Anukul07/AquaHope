@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 export default function Homepage() {
   const [campaigns, setCampaigns] = useState([]);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -99,7 +102,7 @@ export default function Homepage() {
 
                 <button
                   className="mt-6 bg-gradient-to-r from-[#00b4d8] to-[#0077b6] hover:from-[#0077b6] hover:to-[#005f8d] text-white py-2 px-4 rounded-full text-sm font-medium transition duration-300 shadow-md"
-                  onClick={() => console.log("Donate to", camp._id)}
+                  onClick={() => navigate(`/donate/${camp._id}`)}
                 >
                   Donate
                 </button>
@@ -108,6 +111,14 @@ export default function Homepage() {
           ))}
         </div>
       </div>
+      {selectedCampaign && (
+        <Elements stripe={stripePromise}>
+          <DonateModal
+            campaign={selectedCampaign}
+            onClose={() => setSelectedCampaign(null)}
+          />
+        </Elements>
+      )}
       <Footer />
     </>
   );

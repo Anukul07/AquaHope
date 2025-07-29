@@ -7,8 +7,15 @@ import Homepage from "./pages/Homepage";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import AdminPanel from "./pages/admin/AdminPanel";
 import ViewUsers from "./pages/admin/ViewUsers";
+import Donation from "./pages/Donation";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 function App() {
+  const stripePromise = loadStripe(
+    "pk_test_51Rq9L0R52fHRjPZNIMH95a98eyaShPMqJqyq0slNPZfjySNLwPrbuwas4JaiyI7ofJNXmryjY8DwDaTQw3sgHneR00rUcR00Bk"
+  );
+
   return (
     <Router>
       <Routes>
@@ -21,6 +28,14 @@ function App() {
         <Route path="/admin" element={<AdminPanel />}>
           <Route path="users" element={<ViewUsers />} />
         </Route>
+        <Route
+          path="/donate/:id"
+          element={
+            <Elements stripe={stripePromise}>
+              <Donation />
+            </Elements>
+          }
+        />
       </Routes>
     </Router>
   );
