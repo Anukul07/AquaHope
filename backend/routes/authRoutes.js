@@ -4,19 +4,23 @@ const {
   register,
   login,
   validateEmail,
-  validateOTP,
+  validateResetOTP,
   resetPassword,
+  verifyEmailOTP,
+  verifyLoginOTP,
 } = require("../controllers/authController");
+const {
+  registrationLimiter,
+  loginLimiter,
+} = require("../middleware/rateLimiter");
 
-// @route   POST /api/auth/register
-// @desc    Register new user
-router.post("/register", register);
+router.post("/register", registrationLimiter, register);
 
-// @route   POST /api/auth/login
-// @desc    Login user
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
 router.post("/validateEmail", validateEmail);
-router.post("/validateOTP", validateOTP);
+router.post("/validateOTP", validateResetOTP);
 router.post("/resetPassword", resetPassword);
+router.post("/verifyEmailOTP", verifyEmailOTP);
+router.post("/verifyLoginOTP", verifyLoginOTP);
 
 module.exports = router;
