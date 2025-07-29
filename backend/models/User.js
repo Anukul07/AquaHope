@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   role: { type: String, enum: ["admin", "user"], default: "user" },
   isLocked: { type: Boolean, default: false },
+  failedAttempts: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   otp: { type: String },
   otpExpires: { type: Date },

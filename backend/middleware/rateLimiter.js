@@ -10,3 +10,13 @@ exports.registrationLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+exports.loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+  handler: (req, res) => {
+    return res.status(429).json({
+      message: "Too many login attempts. Try again after 15 minutes.",
+    });
+  },
+});
