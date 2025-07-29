@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
 const sanitizeHtml = require("sanitize-html");
+const Profile = require("../models/Profile");
 
 exports.register = async (req, res) => {
   try {
@@ -46,6 +47,11 @@ exports.register = async (req, res) => {
       otp,
       otpExpires,
       isEmailVerified: false,
+    });
+    await Profile.create({
+      userId: newUser._id,
+      phone,
+      fullName,
     });
 
     await sendEmail(email, "Verify your AquaHope email", `Your OTP is: ${otp}`);
@@ -263,5 +269,86 @@ exports.verifyLoginOTP = async (req, res) => {
       token,
       user: { id: user._id, fullName: user.fullName, role: user.role },
     });
+  }
+};
+
+// Validate current password and send OTP for security update
+exports.validatePassword = async (req, res) => {
+  try {
+    const { userId, oldPassword } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid current password" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    await sendEmail(
+      user.email,
+      "Your AquaHope Security Update OTP",
+      `Your one-time security update OTP is: ${otp}`
+    );
+
+    return res.json({
+      message:
+        "OTP sent to your email. Please enter it to complete the update.",
+      otpRequired: true,
+    });
+  } catch (err) {
+    console.error("validatePassword error:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to validate password", error: err.message });
+  }
+};
+// Verify the OTP for security update and apply new credentials
+exports.verifySecurityOtp = async (req, res) => {
+  try {
+    const { userId, otp, newPassword, email } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check OTP validity
+    if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Clear OTP fields
+    user.otp = null;
+    user.otpExpires = null;
+
+    // Update password if provided
+    if (newPassword) {
+      user.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    // Update email if provided (and sanitize)
+    if (email) {
+      user.email = sanitizeHtml(email, {
+        allowedTags: [],
+        allowedAttributes: {},
+      });
+    }
+
+    await user.save();
+    return res.json({ message: "Security information updated successfully" });
+  } catch (err) {
+    console.error("verifySecurityOtp error:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to verify OTP", error: err.message });
   }
 };

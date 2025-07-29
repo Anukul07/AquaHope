@@ -10,6 +10,7 @@ import ViewUsers from "./pages/admin/ViewUsers";
 import Donation from "./pages/Donation";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import Profile from "./pages/Profile";
 
 function App() {
   const stripePromise = loadStripe(
@@ -25,6 +26,7 @@ function App() {
         <Route path="/register" element={<Registration />} />
         <Route path="/homepage" element={<Homepage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPanel />}>
           <Route path="users" element={<ViewUsers />} />
         </Route>
