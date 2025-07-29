@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/admin", require("./routes/userRoutes"));
 
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/donations", require("./routes/donationRoutes"));
