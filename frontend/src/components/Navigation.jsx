@@ -56,12 +56,6 @@ export default function Navigation() {
               <Link to="/homepage" className={navLinkClass("/homepage")}>
                 Campaigns
               </Link>
-              <Link
-                to="/your-journey"
-                className={navLinkClass("/your-journey")}
-              >
-                Your Journey
-              </Link>
               <Link to="/about" className={navLinkClass("/about")}>
                 About Us
               </Link>
@@ -126,13 +120,6 @@ export default function Navigation() {
                   className={navLinkClass("/homepage")}
                 >
                   Campaigns
-                </Link>
-                <Link
-                  to="/your-journey"
-                  onClick={() => setDrawerOpen(false)}
-                  className={navLinkClass("/your-journey")}
-                >
-                  Your Journey
                 </Link>
                 <Link
                   to="/about"

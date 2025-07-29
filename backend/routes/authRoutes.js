@@ -8,6 +8,8 @@ const {
   resetPassword,
   verifyEmailOTP,
   verifyLoginOTP,
+  validatePassword,
+  verifySecurityOtp,
 } = require("../controllers/authController");
 const {
   registrationLimiter,
@@ -22,5 +24,7 @@ router.post("/validateOTP", validateResetOTP);
 router.post("/resetPassword", resetPassword);
 router.post("/verifyEmailOTP", verifyEmailOTP);
 router.post("/verifyLoginOTP", verifyLoginOTP);
+router.post("/validate-password", validatePassword);
+router.post("/verify-security-otp", verifySecurityOtp);
 
 module.exports = router;

@@ -22,6 +22,7 @@ app.use("/api/admin", require("./routes/adminRoutes"));
 
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/profile", require("./routes/profileRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Donation API Running ✅");

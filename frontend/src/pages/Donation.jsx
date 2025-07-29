@@ -136,79 +136,282 @@ export default function Donation({ campaign }) {
           </div>
 
           {/* Right: Donation Form */}
-          <div className="lg:w-1/2 bg-white shadow-md rounded-xl p-6 relative">
-            <h3 className="text-2xl font-semibold mb-4 text-gray-700 text-center">
-              Make a Donation
-            </h3>
+          {/* Right: Donation Form - Stripe Style */}
+          <div className="lg:w-1/2 bg-white shadow-lg rounded-2xl p-8 relative border border-gray-100">
+            {/* Stripe Header */}
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center mb-3">
+                <img src={stripeLogo} alt="Stripe" className="h-8" />
+              </div>
+              <h3 className="text-2xl font-medium text-gray-800 mb-1">
+                Secure Donation
+              </h3>
+              <p className="text-sm text-gray-500">
+                Your payment information is encrypted and secure
+              </p>
+            </div>
 
-            <form onSubmit={handleDonate} className="space-y-4">
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Donation amount in USD"
-                min="1"
-                className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00b4d8] text-lg shadow-sm"
-              />
-
-              <div key={stripeKey}>
-                <CardNumberElement className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00b4d8] text-lg shadow-sm" />
-                <div className="flex flex-col md:flex-row gap-4 mt-4">
-                  <CardExpiryElement className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00b4d8] text-lg shadow-sm" />
-                  <CardCvcElement className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00b4d8] text-lg shadow-sm" />
+            <form onSubmit={handleDonate} className="space-y-6">
+              {/* Amount Input - Stripe Style */}
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Donation Amount
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg font-medium">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0.00"
+                    min="1"
+                    className="w-full pl-8 pr-4 py-4 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                  />
                 </div>
               </div>
 
-              <input
-                type="text"
-                value={zip}
-                onChange={(e) => setZip(e.target.value)}
-                placeholder="ZIP / Postal Code"
-                className="w-full p-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00b4d8] text-lg shadow-sm"
-              />
+              {/* Card Information Section */}
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Card Information
+                </label>
 
+                <div key={stripeKey} className="space-y-3">
+                  {/* Card Number */}
+                  <div className="relative">
+                    <CardNumberElement
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-base"
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "16px",
+                            color: "#374151",
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            "::placeholder": {
+                              color: "#9CA3AF",
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+
+                  {/* Expiry and CVC */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <CardExpiryElement
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-base"
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "16px",
+                            color: "#374151",
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            "::placeholder": {
+                              color: "#9CA3AF",
+                            },
+                          },
+                        },
+                      }}
+                    />
+                    <CardCvcElement
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-base"
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "16px",
+                            color: "#374151",
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            "::placeholder": {
+                              color: "#9CA3AF",
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Billing Details */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Billing Details
+                </label>
+                <input
+                  type="text"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                  placeholder="ZIP / Postal Code"
+                  className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-base"
+                />
+              </div>
+
+              {/* Security Notice */}
+              <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <div className="text-blue-500 mt-0.5">
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="text-xs text-blue-700">
+                  <p className="font-medium">
+                    Your payment is secured by Stripe
+                  </p>
+                  <p className="text-blue-600">
+                    SSL encrypted and PCI DSS compliant
+                  </p>
+                </div>
+              </div>
+
+              {/* Donate Button - Stripe Style */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#00b4d8] to-[#0077b6] hover:from-[#0096c7] hover:to-[#005f8d] text-white py-2 rounded-xl font-semibold text-lg tracking-wide transition-all duration-300 shadow-lg"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 rounded-lg font-semibold text-lg tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-md flex items-center justify-center space-x-2"
               >
-                Donate Now
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    <span>Donate Securely</span>
+                  </>
+                )}
               </button>
             </form>
 
+            {/* Message Display */}
             {message && (
-              <p className="mt-4 text-center text-sm text-gray-700">
+              <div
+                className={`mt-4 p-3 rounded-lg text-center text-sm ${
+                  donationResult === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : donationResult === "error"
+                    ? "bg-red-50 text-red-700 border border-red-200"
+                    : "bg-gray-50 text-gray-700 border border-gray-200"
+                }`}
+              >
                 {message}
-              </p>
+              </div>
             )}
 
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">Powered by</p>
-              <img src={stripeLogo} alt="Stripe" className="h-6 mx-auto mt-1" />
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <div className="flex items-center space-x-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>256-bit SSL</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>PCI Compliant</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>Bank-level security</span>
+                </div>
+              </div>
             </div>
+
             {/* Loading Overlay */}
             {loading && (
-              <div className="absolute inset-0 bg-gray-400/60 flex items-center justify-center z-20 rounded-xl">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-white"></div>
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+                  <p className="text-gray-600 font-medium">
+                    Processing your donation...
+                  </p>
+                </div>
               </div>
             )}
 
             {/* Success Overlay */}
             {donationResult === "success" && (
-              <div className="absolute inset-0 bg-gray-400/60 flex items-center justify-center z-20 rounded-xl">
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
                 <div className="text-center">
-                  <div className="text-green-400 text-5xl mb-2">✔</div>
-                  <p className="text-white text-lg">Donation Successful!</p>
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-green-500 text-2xl">✓</div>
+                  </div>
+                  <p className="text-gray-800 text-xl font-semibold mb-2">
+                    Payment Successful!
+                  </p>
+                  <p className="text-gray-600">
+                    Thank you for your generous donation
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Error Overlay */}
             {donationResult === "error" && (
-              <div className="absolute inset-0 bg-gray-400/60 flex items-center justify-center z-20 rounded-xl">
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
                 <div className="text-center">
-                  <div className="text-red-400 text-5xl mb-2">✖</div>
-                  <p className="text-white text-lg">
-                    Donation Failed. Try again.
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-red-500 text-2xl">✕</div>
+                  </div>
+                  <p className="text-gray-800 text-xl font-semibold mb-2">
+                    Payment Failed
+                  </p>
+                  <p className="text-gray-600">
+                    Please check your card details and try again
                   </p>
                 </div>
               </div>

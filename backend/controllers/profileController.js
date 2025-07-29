@@ -3,7 +3,8 @@ const path = require("path");
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { phone, addressLine1, addressLine2, city } = req.body;
+    const { phone, addressLine1, addressLine2, city, zipcode, fullName } =
+      req.body;
     const userId = req.body.userId || req.params.userId;
 
     const update = {
@@ -11,6 +12,8 @@ exports.updateProfile = async (req, res) => {
       addressLine1,
       addressLine2,
       city,
+      zipcode,
+      fullName,
       province: "Bagmati",
     };
 
@@ -26,6 +29,7 @@ exports.updateProfile = async (req, res) => {
 
     res.status(200).json({ message: "Profile updated", profile });
   } catch (err) {
+    console.error("Profile Update Error:", err);
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
