@@ -4,7 +4,8 @@ const Campaign = require("../models/Campaign");
 
 exports.createDonation = async (req, res) => {
   try {
-    const { userId, campaignId, amount, token } = req.body;
+    const userId = req.user.userId;
+    const { campaignId, amount, token } = req.body;
 
     const payment = await stripe.charges.create({
       amount: Math.round(amount * 100),

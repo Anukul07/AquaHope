@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import {
   User,
   Phone,
@@ -20,7 +20,12 @@ export default function ViewUsers() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("http://192.168.1.75:8000/api/admin/users");
+      const token = localStorage.getItem("token");
+      const res = await axiosInstance.get("/api/admin/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -32,8 +37,15 @@ export default function ViewUsers() {
 
   const handleUnlock = async (userId) => {
     try {
-      await axios.post(
-        `http://192.168.1.75:8000/api/admin/unlockUser/${userId}`
+      const token = localStorage.getItem("token");
+      await axiosInstance.post(
+        `/api/admin/unlockUser/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       fetchUsers();

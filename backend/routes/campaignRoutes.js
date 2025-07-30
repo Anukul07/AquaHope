@@ -7,13 +7,26 @@ const {
   updateCampaign,
   deleteCampaign,
 } = require("../controllers/campaignController");
+const { authMiddleware, adminOnly } = require("../middleware/authMiddleware");
 
-router.post("/add", upload.single("image"), addCampaign);
+router.post(
+  "/add",
+  upload.single("image"),
+  authMiddleware,
+  adminOnly,
+  addCampaign
+);
 
 router.get("/", getAllCampaigns);
 
-router.post("/update/:id", upload.single("image"), updateCampaign);
+router.post(
+  "/update/:id",
+  upload.single("image"),
+  authMiddleware,
+  adminOnly,
+  updateCampaign
+);
 
-router.delete("/:id", deleteCampaign);
+router.delete("/:id", authMiddleware, adminOnly, deleteCampaign);
 
 module.exports = router;

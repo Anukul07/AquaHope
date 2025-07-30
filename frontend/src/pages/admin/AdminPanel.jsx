@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { Users, DollarSign, Target, LogOut, Activity } from "lucide-react";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -18,8 +19,13 @@ export default function AdminPanel() {
     newUsersToday: 45,
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/api/auth/logout");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+    localStorage.removeItem("user");
     navigate("/login");
   };
 

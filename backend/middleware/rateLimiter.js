@@ -20,3 +20,13 @@ exports.loginLimiter = rateLimit({
     });
   },
 });
+
+exports.donationLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  message: {
+    message: "Too many donation attempts. Please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

@@ -9,7 +9,7 @@ import {
 } from "@stripe/react-stripe-js";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import stripeLogo from "../assets/stripe-logo.png";
 
 export default function Donation({ campaign }) {
@@ -27,8 +27,8 @@ export default function Donation({ campaign }) {
 
   useEffect(() => {
     if (!campaign) {
-      axios
-        .get("http://192.168.1.75:8000/api/campaigns")
+      axiosInstance
+        .get("/api/campaigns")
         .then((res) => {
           const found = res.data.find((c) => c._id === id);
           if (!found) return navigate("/homepage");
@@ -44,13 +44,12 @@ export default function Donation({ campaign }) {
     setDonationResult("");
     setLoading(true);
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const tokenFromStorage = localStorage.getItem("token");
     const cardElement = elements.getElement(CardNumberElement);
     const expiryElement = elements.getElement(CardExpiryElement);
     const cvcElement = elements.getElement(CardCvcElement);
 
     if (
-      !user?.id ||
       !amount ||
       amount <= 0 ||
       !cardElement ||
@@ -66,12 +65,19 @@ export default function Donation({ campaign }) {
       const { token } = await stripe.createToken(cardElement);
       if (!token?.id) throw new Error("Invalid card details");
 
-      await axios.post("http://192.168.1.75:8000/api/donations/create", {
-        userId: user.id,
-        campaignId: campaignData._id,
-        amount,
-        token,
-      });
+      await axiosInstance.post(
+        "/api/donations/create",
+        {
+          campaignId: campaignData._id,
+          amount,
+          token,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${tokenFromStorage}`,
+          },
+        }
+      );
 
       setDonationResult("success");
       setMessage("✅ Donation successful! Thank you.");

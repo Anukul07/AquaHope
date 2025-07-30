@@ -3,12 +3,26 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const connectDB = require("./config/db");
+const cookieParser = require("cookie-parser");
+const fs = require("fs");
+const https = require("https");
 
 dotenv.config();
 connectDB();
 
+const key = fs.readFileSync("./ssl/key.pem");
+const cert = fs.readFileSync("./ssl/cert.pem");
+
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://192.168.1.75:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -29,6 +43,10 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server running on port ${PORT} 🚀`)
-);
+https.createServer({ key, cert }, app).listen(PORT, "0.0.0.0", () => {
+  console.log("HTTPS server running on https://192.168.1.75:8000");
+});
+
+// app.listen(PORT, "0.0.0.0", () =>
+//   console.log(`Server running on port ${PORT} 🚀`)
+// );

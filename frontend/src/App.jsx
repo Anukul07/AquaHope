@@ -12,6 +12,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Profile from "./pages/Profile";
 import ViewCampaigns from "./pages/admin/ViewCampaigns";
+import ProtectedAdminRoute from "./pages/admin/ProtectedAdminRoute";
 
 function App() {
   const stripePromise = loadStripe(
@@ -28,11 +29,11 @@ function App() {
         <Route path="/homepage" element={<Homepage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminPanel />}>
-          <Route path="users" element={<ViewUsers />} />
-        </Route>
-        <Route path="/admin" element={<AdminPanel />}>
-          <Route path="campaigns" element={<ViewCampaigns />} />
+        <Route element={<ProtectedAdminRoute />}>
+          <Route path="/admin" element={<AdminPanel />}>
+            <Route path="users" element={<ViewUsers />} />
+            <Route path="campaigns" element={<ViewCampaigns />} />
+          </Route>
         </Route>
         <Route
           path="/donate/:id"

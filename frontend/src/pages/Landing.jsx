@@ -1,6 +1,6 @@
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
 import hero1 from "../assets/landing/hero-1.jpg";
@@ -40,7 +40,9 @@ export default function Landing() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await axios.get("http://192.168.1.75:8000/api/campaigns/");
+        const res = await axiosInstance.get("/api/campaigns/", {
+          headers: { Authorization: undefined },
+        });
         setCampaigns(res.data);
       } catch (error) {
         console.error("Error fetching campaigns:", error);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import AuthHeader from "../../components/AuthHeader";
 import Footer from "../../components/Footer";
@@ -21,7 +21,7 @@ export default function Login() {
     setSuccessMessage("");
 
     try {
-      const res = await axios.post("http://192.168.1.75:8000/api/auth/login", {
+      const res = await axiosInstance.post("/api/auth/login", {
         email,
         password,
       });
@@ -33,26 +33,14 @@ export default function Login() {
         setSuccessMessage(res.data.message);
         return;
       }
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        if (res.data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/homepage");
-        }
-      }
     } catch (err) {
       const data = err.response?.data;
-
       if (data?.otpRequired && data?.purpose === "verify") {
         setOtpPurpose("verify");
         setLoginStage("otp");
         setSuccessMessage(data.message);
         return;
       }
-
       setError(data?.message || "Login failed");
     }
   };
@@ -63,14 +51,11 @@ export default function Login() {
     setSuccessMessage("");
 
     try {
-      const res = await axios.post(
-        "http://192.168.1.75:8000/api/auth/verifyLoginOTP",
-        {
-          email,
-          otp,
-          purpose: otpPurpose,
-        }
-      );
+      const res = await axiosInstance.post("/api/auth/verifyLoginOTP", {
+        email,
+        otp,
+        purpose: otpPurpose,
+      });
 
       if (res.data.loginRequired) {
         setSuccessMessage("Email verified. Please log in again.");
@@ -79,20 +64,18 @@ export default function Login() {
         return;
       }
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        if (res.data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/homepage");
-        }
+      setSuccessMessage(res.data.message);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      if (res.data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/homepage");
       }
     } catch (err) {
+      console.error("verifyLoginOTP failed:", err.response?.data);
       setError(err.response?.data?.message || "OTP verification failed");
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <AuthHeader />
