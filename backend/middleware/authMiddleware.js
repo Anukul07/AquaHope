@@ -1,23 +1,22 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer "))
-    return res.status(401).json({ message: "No token" });
-
-  const token = authHeader.split(" ")[1];
+  const { accessToken } = req.cookies;
+  if (!accessToken) {
+    return res.status(401).json({ message: "No access token" });
+  }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = jwt.verify(accessToken, process.env.JWT_SECRET);
     next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+  } catch {
+    res.status(401).json({ message: "Invalid access token" });
   }
 };
 
 const adminOnly = (req, res, next) => {
-  if (req.user?.role !== "admin")
+  if (req.user?.role !== "admin") {
     return res.status(403).json({ message: "Admin access only" });
+  }
   next();
 };
 

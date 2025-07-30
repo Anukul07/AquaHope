@@ -5,23 +5,27 @@ const sendEmail = require("../utils/sendEmail");
 const sanitizeHtml = require("sanitize-html");
 const Profile = require("../models/Profile");
 
+const accessCookieOpts = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 15 * 60 * 1000,
+};
+const refreshCookieOpts = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 2 * 60 * 60 * 1000,
+};
 exports.register = async (req, res) => {
   try {
     let { fullName, email, password, phone } = req.body;
+    fullName = sanitizeHtml(fullName);
+    email = sanitizeHtml(email);
+    phone = sanitizeHtml(phone);
 
-    fullName = sanitizeHtml(fullName, {
-      allowedTags: [],
-      allowedAttributes: {},
-    });
-    email = sanitizeHtml(email, { allowedTags: [], allowedAttributes: {} });
-    phone = sanitizeHtml(phone, { allowedTags: [], allowedAttributes: {} });
-
-    const isPasswordStrong = (pwd) => {
-      const lengthCheck = pwd.length >= 8;
-      const numberCheck = /\d/.test(pwd);
-      const symbolCheck = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-      return lengthCheck && numberCheck && symbolCheck;
-    };
+    const isPasswordStrong = (pwd) =>
+      pwd.length >= 8 && /\d/.test(pwd) && /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
 
     if (!isPasswordStrong(password)) {
       return res.status(400).json({
@@ -30,8 +34,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const existing = await User.findOne({ email });
-    if (existing) {
+    if (await User.findOne({ email })) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
@@ -48,10 +51,11 @@ exports.register = async (req, res) => {
       otpExpires,
       isEmailVerified: false,
     });
+
     await Profile.create({
       userId: newUser._id,
-      phone,
       fullName,
+      phone,
     });
 
     await sendEmail(email, "Verify your AquaHope email", `Your OTP is: ${otp}`);
@@ -73,32 +77,30 @@ exports.login = async (req, res) => {
     if (typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({ message: "Invalid request format." });
     }
-    const user = await User.findOne({ email });
 
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     if (user.isLocked) {
       return res.status(403).json({
         message:
-          "Account locked due to multiple failed login attempts. Try again after 10 minutes.",
+          "Account locked due to multiple failed login attempts. Try again later.",
       });
     }
 
     const match = await bcrypt.compare(password, user.password);
-
     if (!match) {
       user.failedAttempts = (user.failedAttempts || 0) + 1;
-
       if (user.failedAttempts >= 5) {
         user.isLocked = true;
-
         setTimeout(async () => {
           user.isLocked = false;
           user.failedAttempts = 0;
           await user.save();
         }, 10 * 60 * 1000);
       }
-
       await user.save();
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -145,24 +147,10 @@ exports.login = async (req, res) => {
       purpose: "login",
       email: user.email,
     });
-    // const token = jwt.sign(
-    //   { userId: user._id, role: user.role },
-    //   process.env.JWT_SECRET,
-    //   { expiresIn: "2h" }
-    // );
-
-    // await user.save();
-
-    // return res.status(200).json({
-    //   message: "Login successful.",
-    //   token,
-    //   user: { id: user._id, fullName: user.fullName, role: user.role },
-    // });
   } catch (err) {
     res.status(500).json({ message: "Login failed", error: err.message });
   }
 };
-
 exports.validateEmail = async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -226,53 +214,62 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.verifyLoginOTP = async (req, res) => {
-  const { email, otp, purpose } = req.body;
-  const user = await User.findOne({ email });
+  try {
+    const { email, otp, purpose } = req.body;
+    const user = await User.findOne({ email });
 
-  if (!user || !user.otp || user.otp !== otp || new Date() > user.otpExpires) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
-  }
-
-  if (!["verify", "login"].includes(purpose)) {
-    return res.status(400).json({ message: "Invalid purpose specified" });
-  }
-
-  user.otp = null;
-  user.otpExpires = null;
-
-  if (purpose === "verify") {
-    if (user.isEmailVerified) {
-      return res.status(400).json({ message: "Email is already verified" });
+    if (
+      !user ||
+      user.otp !== otp ||
+      new Date() > user.otpExpires ||
+      !["verify", "login"].includes(purpose)
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    user.isEmailVerified = true;
-    await user.save();
+    user.otp = null;
+    user.otpExpires = null;
 
-    return res.status(200).json({
-      message: "Email verified successfully. Please log in again.",
-      emailVerified: true,
-      loginRequired: true,
-    });
-  }
+    if (purpose === "verify") {
+      if (!user.isEmailVerified) {
+        user.isEmailVerified = true;
+        await user.save();
+      }
+      return res.status(200).json({
+        message: "Email verified successfully. Please log in again.",
+        emailVerified: true,
+        loginRequired: true,
+      });
+    }
 
-  if (purpose === "login") {
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: user._id, role: user.role, mfaVerified: true },
       process.env.JWT_SECRET,
       { expiresIn: "2h" }
     );
 
     await user.save();
 
-    return res.json({
-      message: "Login successful",
-      token,
-      user: { id: user._id, fullName: user.fullName, role: user.role },
-    });
+    return res
+      .cookie("accessToken", accessToken, accessCookieOpts)
+      .cookie("refreshToken", refreshToken, refreshCookieOpts)
+      .json({
+        message: "Login successful",
+        user: { id: user._id, fullName: user.fullName, role: user.role },
+      });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "OTP verification failed", error: err.message });
   }
 };
 
-// Validate current password and send OTP for security update
 exports.validatePassword = async (req, res) => {
   try {
     const { userId, oldPassword } = req.body;
@@ -312,7 +309,7 @@ exports.validatePassword = async (req, res) => {
       .json({ message: "Failed to validate password", error: err.message });
   }
 };
-// Verify the OTP for security update and apply new credentials
+
 exports.verifySecurityOtp = async (req, res) => {
   try {
     const { userId, otp, newPassword, email } = req.body;
@@ -321,21 +318,17 @@ exports.verifySecurityOtp = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check OTP validity
     if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    // Clear OTP fields
     user.otp = null;
     user.otpExpires = null;
 
-    // Update password if provided
     if (newPassword) {
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    // Update email if provided (and sanitize)
     if (email) {
       user.email = sanitizeHtml(email, {
         allowedTags: [],
@@ -351,4 +344,44 @@ exports.verifySecurityOtp = async (req, res) => {
       .status(500)
       .json({ message: "Failed to verify OTP", error: err.message });
   }
+};
+exports.refreshToken = (req, res) => {
+  const { refreshToken } = req.cookies;
+  if (!refreshToken) {
+    return res.status(401).json({ message: "No refresh token provided" });
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
+
+  if (!payload.mfaVerified) {
+    return res.status(403).json({ message: "MFA required" });
+  }
+
+  const newAccessToken = jwt.sign(
+    { userId: payload.userId, role: payload.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+  const newRefreshToken = jwt.sign(
+    { userId: payload.userId, role: payload.role, mfaVerified: true },
+    process.env.JWT_SECRET,
+    { expiresIn: "2h" }
+  );
+
+  return res
+    .cookie("accessToken", newAccessToken, accessCookieOpts)
+    .cookie("refreshToken", newRefreshToken, refreshCookieOpts)
+    .json({ message: "Tokens refreshed" });
+};
+exports.logout = (req, res) => {
+  return res
+    .clearCookie("accessToken", { httpOnly: true, sameSite: "lax" })
+    .clearCookie("refreshToken", { httpOnly: true, sameSite: "lax" })
+    .status(200)
+    .json({ message: "Logged out successfully" });
 };

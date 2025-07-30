@@ -19,7 +19,6 @@ const campaignSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Virtual for days left
 campaignSchema.virtual("daysLeft").get(function () {
   const now = new Date();
   const diffTime = new Date(this.endDate) - now;
@@ -27,7 +26,6 @@ campaignSchema.virtual("daysLeft").get(function () {
   return diffDays >= 0 ? diffDays : 0;
 });
 
-// Virtual for progress %
 campaignSchema.virtual("progress").get(function () {
   if (this.goalAmount === 0) return 0;
   return Math.min(
@@ -36,7 +34,6 @@ campaignSchema.virtual("progress").get(function () {
   );
 });
 
-// Ensure virtuals are included in JSON responses
 campaignSchema.set("toObject", { virtuals: true });
 campaignSchema.set("toJSON", { virtuals: true });
 

@@ -76,7 +76,6 @@ exports.updateCampaign = async (req, res) => {
       status,
     } = req.body;
 
-    // build update object
     const update = {};
     if (title) update.title = escape(title);
     if (subtitle) update.subtitle = escape(subtitle);

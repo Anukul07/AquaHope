@@ -3,12 +3,15 @@ import { useState } from "react";
 import logo from "../assets/logo.png";
 import { FiMenu, FiX } from "react-icons/fi";
 import { useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
 export default function Navigation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
+  const stored = localStorage.getItem("user");
+  const user = stored ? JSON.parse(stored) : null;
+  const isLoggedIn = !!user;
+  const isAdmin = user?.role === "admin";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -24,9 +27,14 @@ export default function Navigation() {
     };
   }, [drawerOpen]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/api/auth/logout");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   const navLinkClass = (path) =>
@@ -62,6 +70,11 @@ export default function Navigation() {
               <Link to="/profile" className={navLinkClass("/profile")}>
                 Profile
               </Link>
+              {isAdmin && (
+                <Link to="/admin" className={navLinkClass("/admin")}>
+                  Admin Panel
+                </Link>
+              )}
             </>
           ) : (
             <>
@@ -135,6 +148,15 @@ export default function Navigation() {
                 >
                   Profile
                 </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setDrawerOpen(false)}
+                    className={navLinkClass("/admin")}
+                  >
+                    Admin Panel
+                  </Link>
+                )}
                 <span
                   onClick={() => {
                     handleLogout();

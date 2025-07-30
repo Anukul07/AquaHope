@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import AuthHeader from "../../components/AuthHeader";
 import Footer from "../../components/Footer";
@@ -41,7 +41,7 @@ export default function Registration() {
     }
 
     try {
-      await axios.post("http://192.168.1.75:8000/api/auth/register", form);
+      await axiosInstance.post("/api/auth/register", form);
       setRegistrationStage("otp");
       setSuccessMessage(
         "Registration successful. An OTP has been sent to your email."
@@ -53,7 +53,7 @@ export default function Registration() {
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://192.168.1.75:8000/api/auth/verifyEmailOTP", {
+      await axiosInstance.post("/api/auth/verifyEmailOTP", {
         email: form.email,
         otp,
       });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import defaultProfile from "../assets/profile-default.jpg";
@@ -33,9 +33,7 @@ export default function Profile() {
   const fetchProfile = async (userId) => {
     try {
       const localUser = JSON.parse(localStorage.getItem("user"));
-      const res = await axios.get(
-        `http://192.168.1.75:8000/api/profile/${userId}`
-      );
+      const res = await axiosInstance.get(`/api/profile/${userId}`);
       setProfile({
         ...res.data,
         fullName: res.data.fullName || localUser.fullName || "",
@@ -75,7 +73,9 @@ export default function Profile() {
         formData.append("photo", selectedImage);
       }
 
-      await axios.post("http://192.168.1.75:8000/api/profile/update", formData);
+      await axiosInstance.post("/api/profile/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setUpdateMsg("Profile updated successfully.");
       fetchProfile(user.id);
     } catch {
@@ -100,7 +100,7 @@ export default function Profile() {
     setPasswordError("");
 
     try {
-      await axios.post("http://192.168.1.75:8000/api/auth/validate-password", {
+      await axiosInstance.post("/api/auth/validate-password", {
         userId: user.id,
         oldPassword,
         newPassword,
@@ -114,15 +114,12 @@ export default function Profile() {
 
   const handleVerifyOTP = async () => {
     try {
-      await axios.post(
-        "http://192.168.1.75:8000/api/auth/verify-security-otp",
-        {
-          userId: user.id,
-          otp,
-          newPassword,
-          email,
-        }
-      );
+      await axiosInstance.post("/api/auth/verify-security-otp", {
+        userId: user.id,
+        otp,
+        newPassword,
+        email,
+      });
       setSecurityMsg("Security information updated successfully.");
       setOtpStage(false);
     } catch (err) {

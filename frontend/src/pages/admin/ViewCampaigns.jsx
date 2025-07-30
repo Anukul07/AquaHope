@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import {
   PlusCircle,
   Edit2,
@@ -13,6 +12,7 @@ import {
   DollarSign,
   XCircle,
 } from "lucide-react";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function ViewCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
@@ -22,7 +22,6 @@ export default function ViewCampaigns() {
   const [editing, setEditing] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Form refs
   const titleRef = useRef();
   const subtitleRef = useRef();
   const descRef = useRef();
@@ -36,7 +35,7 @@ export default function ViewCampaigns() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("http://192.168.1.75:8000/api/campaigns");
+      const res = await axiosInstance.get("/api/campaigns");
 
       const campaignsWithDaysLeft = res.data.map((camp) => {
         const endDate = new Date(camp.endDate);
@@ -70,16 +69,31 @@ export default function ViewCampaigns() {
       return;
     }
     try {
-      await axios.delete(`http://192.168.1.75:8000/api/campaigns/${id}`);
-      fetchCampaigns();
+      const token = localStorage.getItem("token");
+
+      const response = await axiosInstance.delete(`/api/campaigns/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        fetchCampaigns();
+      } else {
+        throw new Error(response.data.message || "Failed to delete");
+      }
     } catch (err) {
       console.error("Error deleting campaign:", err);
-      setError("Failed to delete campaign. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Failed to delete campaign. Please try again."
+      );
     }
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append("title", titleRef.current.value);
     formData.append("subtitle", subtitleRef.current.value);
@@ -88,22 +102,29 @@ export default function ViewCampaigns() {
     formData.append("location", locationRef.current.value);
     formData.append("startDate", startRef.current.value);
     formData.append("endDate", endRef.current.value);
+
     if (imageFileRef.current.files[0]) {
       formData.append("image", imageFileRef.current.files[0]);
     }
 
     try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
       if (editing) {
-        await axios.post(
-          `http://192.168.1.75:8000/api/campaigns/update/${editing}`,
-          formData
+        await axiosInstance.post(
+          `/api/campaigns/update/${editing}`,
+          formData,
+          config
         );
       } else {
-        await axios.post(
-          "http://192.168.1.75:8000/api/campaigns/add",
-          formData
-        );
+        await axiosInstance.post("/api/campaigns/add", formData, config);
       }
+
       setFormVisible(false);
       setEditing(null);
       setImagePreview(null);
@@ -112,7 +133,8 @@ export default function ViewCampaigns() {
     } catch (err) {
       console.error("Error saving campaign:", err);
       setError(
-        "Failed to save campaign. Please check all fields and try again."
+        err.response?.data?.message ||
+          "Failed to save campaign. Please check all fields and try again."
       );
     }
   };

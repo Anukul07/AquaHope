@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ export default function Homepage() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await axios.get("http://192.168.1.75:8000/api/campaigns/");
+        const res = await axiosInstance.get("/api/campaigns/");
         setCampaigns(res.data);
       } catch (err) {
         console.error("Failed to fetch campaigns", err);

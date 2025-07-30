@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import AuthHeader from "../../components/AuthHeader";
 import Footer from "../../components/Footer";
@@ -20,10 +20,9 @@ export default function ForgotPassword() {
     setSuccess("");
 
     try {
-      const res = await axios.post(
-        "http://192.168.1.75:8000/api/auth/validateEmail",
-        { email }
-      );
+      const res = await axiosInstance.post("/api/auth/validateEmail", {
+        email,
+      });
       setSuccess(res.data.message);
       setStep(2);
     } catch (err) {
@@ -37,10 +36,10 @@ export default function ForgotPassword() {
     setSuccess("");
 
     try {
-      const res = await axios.post(
-        "http://192.168.1.75:8000/api/auth/validateOTP",
-        { email, otp }
-      );
+      const res = await axiosInstance.post("/api/auth/validateOTP", {
+        email,
+        otp,
+      });
       setSuccess(res.data.message);
       setStep(3);
     } catch (err) {
@@ -54,10 +53,11 @@ export default function ForgotPassword() {
     setSuccess("");
 
     try {
-      const res = await axios.post(
-        "http://192.168.1.75:8000/api/auth/resetPassword",
-        { email, otp, newPassword }
-      );
+      const res = await axiosInstance.post("/api/auth/resetPassword", {
+        email,
+        otp,
+        newPassword,
+      });
       setSuccess(res.data.message);
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
