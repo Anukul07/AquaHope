@@ -1,5 +1,5 @@
-                                                                                                        #AquaHope
-                                                              ##Secure Donation Platform to Donate for Drinking Water Project Campaigns across Africa.
+#AquaHope
+###Secure Donation Platform to Donate for Drinking Water Project Campaigns across Africa.
 AquaHope is a secure MERN-stack donation web application supporting clean water projects across Africa. Users can register, donate, and manage campaigns with the peace of mind that their data and donations are protected by best-in-class security controls.
 
 🚀 Features
