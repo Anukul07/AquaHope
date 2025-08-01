@@ -10,31 +10,30 @@ Admin Panel & Role-Based Access Control
 Modern, Responsive UI
 
 🔒 Security Measures Control / Measure Description
-Input Validation & Sanitization All inputs sanitized server-side (sanitize-html, express-mongo-sanitize) to prevent XSS and NoSQLi.
-Strong Password Policy Passwords must meet complexity standards and are hashed with bcrypt.
-JWT in httpOnly Cookies Tokens issued as httpOnly, SameSite cookies—safe from JavaScript/XSS.
-Multi-Factor Authentication (MFA) MFA enforced on registration, login, and sensitive actions.
-Rate Limiting & Brute-Force Protection express-rate-limit locks out after repeated failed attempts.
-CSRF & CORS Mitigation Strict CORS policy; cookies are SameSite=lax to prevent cross-site attacks.
-Access Control & RBAC Role-based access, admin-only endpoints protected by middleware.
-Audit Logging Key events logged securely for monitoring and incident response.
-HTTPS by Default All data transmitted securely over SSL/TLS.
-Security Headers Helmet sets Content Security Policy, HSTS, and more.
+
+- Input Validation & Sanitization All inputs sanitized server-side (sanitize-html, express-mongo-sanitize) to prevent XSS and NoSQLi.
+- Strong Password Policy Passwords must meet complexity standards and are hashed with bcrypt.
+- JWT in httpOnly Cookies Tokens issued as httpOnly, SameSite cookies—safe from JavaScript/XSS.
+- Multi-Factor Authentication (MFA) MFA enforced on registration, login, and sensitive actions.
+- Rate Limiting & Brute-Force Protection express-rate-limit locks out after repeated failed attempts.
+- CSRF & CORS Mitigation Strict CORS policy; cookies are SameSite=lax to prevent cross-site attacks.
+- Access Control & RBAC Role-based access, admin-only endpoints protected by middleware.
+- Audit Logging Key events logged securely for monitoring and incident response.
+- HTTPS by Default All data transmitted securely over SSL/TLS.
+- Security Headers Helmet sets Content Security Policy, HSTS, and more.
 
 📦 Tech Stack
-Frontend: React.js (Vite), Tailwind CSS
 
-Backend: Node.js, Express.js
-
-Database: MongoDB
-
-Payments: Stripe
+- Frontend: React.js (Vite), Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: MongoDB
+- Payments: Stripe
 
 Authentication: JWT, MFA, bcrypt
 
 🏁 Quick Start
-Clone the repo
-git clone https://github.com/yourusername/aquahope.git
+   Clone the repo
+   git clone https://github.com/yourusername/aquahope.git
 
     Install dependencies
     cd aquahope && npm install
