@@ -1,0 +1,18 @@
+# Logs
+logs/
+*.log
+
+.env
+
+
+node_modules/
+
+
+*.pid
+*.seed
+*.pid.lock
+
+
+.vscode/
+.idea/
+.DS_Store
