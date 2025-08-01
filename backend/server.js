@@ -6,6 +6,8 @@ const connectDB = require("./config/db");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const https = require("https");
+const helmet = require("helmet");
+const activityLogger = require("./middleware/activityLogger");
 
 dotenv.config();
 connectDB();
@@ -22,6 +24,18 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  })
+);
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -30,6 +44,8 @@ app.use((req, res, next) => {
   if (req.params) mongoSanitize.sanitize(req.params);
   next();
 });
+
+app.use(activityLogger);
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/userRoutes"));
@@ -46,7 +62,3 @@ const PORT = process.env.PORT || 8000;
 https.createServer({ key, cert }, app).listen(PORT, "0.0.0.0", () => {
   console.log("HTTPS server running on https://192.168.1.75:8000");
 });
-
-// app.listen(PORT, "0.0.0.0", () =>
-//   console.log(`Server running on port ${PORT} 🚀`)
-// );
