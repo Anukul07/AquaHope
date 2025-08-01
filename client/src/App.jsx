@@ -16,7 +16,7 @@ import ProtectedAdminRoute from "./pages/admin/ProtectedAdminRoute";
 
 function App() {
   const stripePromise = loadStripe(
-    "pk_test_51Rq9L0R52fHRjPZNIMH95a98eyaShPMqJqyq0slNPZfjySNLwPrbuwas4JaiyI7ofJNXmryjY8DwDaTQw3sgHneR00rUcR00Bk"
+    "#"
   );
 
   return (
